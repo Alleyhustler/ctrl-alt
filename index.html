@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$CTRL+ALT+RUG — The Token That Reboots</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0d0d0d;
+            --bg-secondary: #1a1a1a;
+            --text-primary: #e8e8e8;
+            --text-accent: #c9aa71;
+            --text-muted: #757575;
+            --text-error: #d32f2f;
+            --text-warning: #f57c00;
+            --border: #2d2d2d;
+            --glow-primary: rgba(201, 170, 113, 0.15);
+            --glow-error: rgba(211, 47, 47, 0.2);
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            grid-template-rows: auto 1fr auto;
+            gap: 0;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            padding: 5px 30px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            width: 42px;
+            height: 62px;
+            filter: drop-shadow(0 0 8px var(--glow-primary));
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 98% { transform: translateX(0); }
+            99% { transform: translateX(-2px); }
+            100% { transform: translateX(2px); }
+        }
+
+        .main-content {
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .terminal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0;
+            padding: 30px;
+            max-width: 800px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-error);
+        }
+
+        .terminal-dot:nth-child(2) { background: var(--text-amber); }
+        .terminal-dot:nth-child(3) { background: var(--text-primary); }
+
+        .terminal-content {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .typing-line {
+            opacity: 0;
+            animation: typeIn 0.8s ease-out forwards;
+        }
+
+        .typing-line:nth-child(1) { animation-delay: 0.5s; }
+        .typing-line:nth-child(2) { animation-delay: 1.2s; }
+        .typing-line:nth-child(3) { animation-delay: 2s; }
+        .typing-line:nth-child(4) { animation-delay: 2.8s; }
+        .typing-line:nth-child(5) { animation-delay: 3.6s; }
+
+        @keyframes typeIn {
+            from { opacity: 0; width: 0; }
+            to { opacity: 1; width: 100%; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background: var(--text-primary);
+            animation: blink 1s infinite;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .countdown {
+            color: var(--text-warning);
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(245, 124, 0, 0.3);
+        }
+
+        .error {
+            color: var(--text-error);
+        }
+
+        .success {
+            color: var(--text-primary);
+        }
+
+        .controls {
+            margin-top: 40px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .key-button {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .key-button:hover {
+            border-color: var(--text-accent);
+            box-shadow: 0 0 15px var(--glow-primary);
+            background: rgba(201, 170, 113, 0.05);
+        }
+
+        .key-button:active {
+            transform: translateY(1px);
+        }
+
+        .key-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .key-button.executing {
+            background: var(--text-warning);
+            color: var(--bg-primary);
+            border-color: var(--text-warning);
+            animation: pulse 0.5s infinite;
+        }
+
+        .key-button.success {
+            background: var(--text-accent);
+            color: var(--bg-primary);
+            border-color: var(--text-accent);
+        }
+
+        .key-button.error {
+            background: var(--text-error);
+            color: white;
+            border-color: var(--text-error);
+        }
+
+        .key-button.primary {
+            background: var(--text-accent);
+            color: var(--bg-primary);
+            border-color: var(--text-accent);
+        }
+
+        .key-button.primary:hover {
+            background: var(--text-warning);
+            border-color: var(--text-warning);
+            box-shadow: 0 0 15px rgba(245, 124, 0, 0.3);
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            padding: 30px 20px;
+            overflow-y: auto;
+        }
+
+        .system-logs {
+            margin-bottom: 30px;
+        }
+
+        .log-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-accent);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .log-entry {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .log-entry:hover {
+            border-left-color: var(--text-accent);
+            color: var(--text-accent);
+        }
+
+        .log-entry.active {
+            border-left-color: var(--text-warning);
+            color: var(--text-warning);
+            background: rgba(245, 124, 0, 0.05);
+        }
+
+        .stats {
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 11px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .footer {
+            grid-column: 1 / -1;
+            padding: 15px 30px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .solana-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.7;
+        }
+
+        .solana-logo {
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(45deg, #9945ff, #14f195);
+            border-radius: 2px;
+        }
+
+        .warning {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 10px;
+            color: var(--text-error);
+            background: rgba(255, 68, 68, 0.1);
+            padding: 5px 10px;
+            border: 1px solid var(--text-error);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto auto;
+            }
+            
+            .sidebar {
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header, .main-content, .footer {
+                padding: 20px;
+            }
+            
+            .terminal {
+                padding: 20px;
+            }
+            
+            .logo {
+                font-size: 18px;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .key-button {
+                padding: 10px 15px;
+                font-size: 11px;
+            }
+        }
+
+        .hex-address {
+            color: var(--text-muted);
+            font-size: 12px;
+            word-break: break-all;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.3px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 2px;
+            background: var(--border);
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--text-accent), var(--text-warning));
+            width: 0%;
+            animation: progressLoad 4s ease-in-out infinite;
+        }
+
+        @keyframes progressLoad {
+            0% { width: 0%; }
+            50% { width: 75%; }
+            100% { width: 100%; }
+        }
+
+        .social-link {
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 2px solid var(--border);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .social-link:hover {
+            border-left-color: var(--text-accent);
+            color: var(--text-accent);
+            background: rgba(201, 170, 113, 0.05);
+        }
+
+        .protocol-image {
+            margin: 20px 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            font-family: inherit;
+        }
+
+        .modal-header {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            font-family: inherit;
+            font-size: 11px;
+            cursor: pointer;
+            float: right;
+        }
+
+        .modal-close:hover {
+            border-color: var(--text-accent);
+            box-shadow: 0 0 10px var(--glow-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="Ctrl (1).png" alt="CTRL+ALT+RUG Logo" class="logo-img">
+                <div class="logo">CTRL+ALT+RUG — $BOOTRUG</div>
+            </div>
+            <div class="warning">SYSTEM UNSTABLE</div>
+        </header>
+
+        <main class="main-content">
+            <div class="terminal">
+                <div class="terminal-header">
+                    <div class="terminal-dot"></div>
+                    <div class="terminal-dot"></div>
+                    <div class="terminal-dot"></div>
+                    <span style="margin-left: 10px; font-size: 12px; color: var(--text-muted);">root@rugprotocol:~$</span>
+                </div>
+                
+                <div class="terminal-content">
+                    <div class="typing-line">$ ./initialize_protocol.sh</div>
+                    <div class="typing-line">Initializing Protocol<span class="cursor"></span></div>
+                    <div class="typing-line">Reboot Sequence Scheduled: T-minus <span class="countdown" id="countdown">03:42:17</span></div>
+                    <div class="typing-line error">Wallet Integrity Check Failed: <span class="hex-address">9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM...</span></div>
+                    <div class="typing-line success">Emergency Protocol Activated</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="key-button" data-action="ctrl">CTRL</button>
+                <button class="key-button" data-action="alt">ALT</button>
+                <button class="key-button" data-action="rug">RUG</button>
+                <button class="key-button primary" data-action="reboot">FORCE_BOOTRUG</button>
+                <button class="key-button" data-action="exit">EMERGENCY_EXIT</button>
+                <button class="key-button" data-action="diagnostics">DIAGNOSTICS</button>
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <div class="system-logs">
+                <div class="log-title">System Logs</div>
+                <div class="log-entry active">LP Rebalance Triggered</div>
+                <div class="log-entry">Staking Reinitialized</div>
+                <div class="log-entry">Wallet Termination Executed</div>
+                <div class="log-entry">Protocol Fork Detected</div>
+                <div class="log-entry">MEV Protection Enabled</div>
+                <div class="log-entry">Liquidity Pool Drained</div>
+                <div class="log-entry">Emergency Shutdown Initiated</div>
+            </div>
+
+            <div class="stats">
+                <div class="log-title">System Status</div>
+                <div class="stat-item">
+                    <span class="stat-label">Network:</span>
+                    <span class="stat-value">Solana</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Protocol:</span>
+                    <span class="stat-value">UNSTABLE</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Uptime:</span>
+                    <span class="stat-value">72.3%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Risk Level:</span>
+                    <span class="stat-value" style="color: var(--text-error);">CRITICAL</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Supply:</span>
+                    <span class="stat-value">1,000,000,000</span>
+                </div>
+            </div>
+
+            <div class="protocol-image">
+                <img src="Screenshot 2025-06-12 112344.png" alt="Protocol Architecture" style="width: 100%; height: 120px; object-fit: cover; border: 1px solid var(--border); opacity: 0.7; filter: grayscale(100%) contrast(120%);">
+            </div>
+
+            <div class="social-section">
+                <div class="log-title">Network</div>
+                <div class="social-link" onclick="window.open('https://x.com/solanabootrug', '_blank')">
+                    <span style="color: var(--text-accent);">@</span> Follow Protocol X Updates
+                </div>
+            </div>
+        </aside>
+
+        <footer class="footer">
+            <div>© 2025 CTRL+ALT+RUG Protocol • Risk Disclosure: High Volatility Asset</div>
+            <div class="solana-badge">
+                <div class="solana-logo"></div>
+                <span>Powered by Solana</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal for diagnostics -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modal-title">System Diagnostics</div>
+            <div class="modal-body" id="modal-body">
+                Running comprehensive system diagnostics...
+            </div>
+            <button class="modal-close" onclick="closeModal()">CLOSE</button>
+        </div>
+    </div>
+
+    <script>
+        // Countdown timer
+        function updateCountdown() {
+            const countdownEl = document.getElementById('countdown');
+            let time = countdownEl.textContent.split(':').map(Number);
+            let totalSeconds = time[0] * 3600 + time[1] * 60 + time[2];
+            
+            if (totalSeconds > 0) {
+                totalSeconds--;
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                
+                countdownEl.textContent = 
+                    String(hours).padStart(2, '0') + ':' + 
+                    String(minutes).padStart(2, '0') + ':' + 
+                    String(seconds).padStart(2, '0');
+            } else {
+                countdownEl.textContent = 'REBOOTING...';
+                countdownEl.style.color = 'var(--text-error)';
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        // Log rotation
+        const logs = document.querySelectorAll('.log-entry');
+        let currentLogIndex = 0;
+
+        function rotateActiveLog() {
+            logs.forEach(log => log.classList.remove('active'));
+            logs[currentLogIndex].classList.add('active');
+            currentLogIndex = (currentLogIndex + 1) % logs.length;
+        }
+
+        setInterval(rotateActiveLog, 3000);
+
+        // Button interactions with functionality
+        let ctrlPressed = false;
+        let altPressed = false;
+        let rugPressed = false;
+
+        function executeButtonAction(button, action) {
+            const originalText = button.textContent;
+            button.classList.add('executing');
+            button.disabled = true;
+
+            switch(action) {
+                case 'ctrl':
+                    ctrlPressed = true;
+                    button.textContent = 'CTRL [ACTIVE]';
+                    setTimeout(() => {
+                        button.classList.remove('executing');
+                        button.classList.add('success');
+                        addLogEntry('CTRL signal intercepted');
+                    }, 1000);
+                    break;
+
+                case 'alt':
+                    altPressed = true;
+                    button.textContent = 'ALT [ACTIVE]';  
+                    setTimeout(() => {
+                        button.classList.remove('executing');
+                        button.classList.add('success');
+                        addLogEntry('ALT pathway secured');
+                    }, 1200);
+                    break;
+
+                case 'rug':
+                    rugPressed = true;
+                    button.textContent = 'RUG [ARMED]';
+                    setTimeout(() => {
+                        button.classList.remove('executing');
+                        button.classList.add('error');
+                        addLogEntry('RUG protocol armed - DANGER');
+                    }, 800);
+                    break;
+
+                case 'reboot':
+                    if (ctrlPressed && altPressed && rugPressed) {
+                        button.textContent = 'REBOOTING...';
+                        setTimeout(() => {
+                            button.classList.remove('executing');
+                            button.classList.add('success');
+                            button.textContent = 'REBOOT COMPLETE';
+                            addLogEntry('SYSTEM REBOOT SUCCESSFUL');
+                            resetAllButtons();
+                        }, 3000);
+                    } else {
+                        button.textContent = 'ACCESS DENIED';
+                        setTimeout(() => {
+                            button.classList.remove('executing');
+                            button.classList.add('error');
+                            addLogEntry('Reboot failed - Missing keys');
+                        }, 1000);
+                    }
+                    break;
+
+                case 'exit':
+                    button.textContent = 'EXITING...';
+                    setTimeout(() => {
+                        button.classList.remove('executing');
+                        button.classList.add('error');
+                        button.textContent = 'EXIT BLOCKED';
+                        addLogEntry('Emergency exit compromised');
+                    }, 1500);
+                    break;
+
+                case 'diagnostics':
+                    button.textContent = 'SCANNING...';
+                    setTimeout(() => {
+                        button.classList.remove('executing');
+                        button.classList.add('success');
+                        button.textContent = 'DIAGNOSTICS';
+                        showModal('System Diagnostics', 
+                            'CPU: 87% Load<br>Memory: 2.3GB/4GB<br>Network: 156ms latency<br>Storage: 67% Full<br><br>CRITICAL: Multiple wallet vulnerabilities detected<br>WARNING: Liquidity pool showing anomalies<br>ERROR: Smart contract integrity compromised');
+                        addLogEntry('Diagnostics completed');
+                    }, 2000);
+                    break;
+            }
+
+            setTimeout(() => {
+                if (action !== 'reboot') {
+                    button.disabled = false;
+                    if (action === 'diagnostics') {
+                        button.textContent = originalText;
+                        button.classList.remove('success', 'error');
+                    }
+                }
+            }, 3000);
+        }
+
+        function resetAllButtons() {
+            ctrlPressed = altPressed = rugPressed = false;
+            document.querySelectorAll('.key-button').forEach(btn => {
+                btn.classList.remove('executing', 'success', 'error');
+                btn.disabled = false;
+                const action = btn.getAttribute('data-action');
+                switch(action) {
+                    case 'ctrl': btn.textContent = 'CTRL'; break;
+                    case 'alt': btn.textContent = 'ALT'; break;
+                    case 'rug': btn.textContent = 'RUG'; break;
+                    case 'reboot': btn.textContent = 'FORCE_REBOOT'; break;
+                    case 'exit': btn.textContent = 'EMERGENCY_EXIT'; break;
+                    case 'diagnostics': btn.textContent = 'DIAGNOSTICS'; break;
+                }
+            });
+        }
+
+        function addLogEntry(message) {
+            const logsContainer = document.querySelector('.system-logs');
+            const newLog = document.createElement('div');
+            newLog.className = 'log-entry active';
+            newLog.textContent = message;
+            
+            // Remove active class from all logs
+            document.querySelectorAll('.log-entry').forEach(log => log.classList.remove('active'));
+            
+            // Add new log at the top
+            logsContainer.insertBefore(newLog, logsContainer.children[1]);
+            
+            // Remove oldest log if more than 7
+            const logs = logsContainer.querySelectorAll('.log-entry');
+            if (logs.length > 8) {
+                logs[logs.length - 1].remove();
+            }
+        }
+
+        function showModal(title, body) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = body;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Attach event listeners
+        document.querySelectorAll('.key-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                if (!this.disabled) {
+                    this.style.transform = 'translateY(2px)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                        executeButtonAction(this, action);
+                    }, 100);
+                }
+            });
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Random Solana address generation
+        function generateRandomSolanaAddress() {
+            const base58chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+            let result = '';
+            // Solana addresses are typically 32-44 characters in base58
+            const length = Math.floor(Math.random() * 13) + 32; // 32-44 chars
+            for (let i = 0; i < length; i++) {
+                result += base58chars.charAt(Math.floor(Math.random() * base58chars.length));
+            }
+            return result.substring(0, 25) + '...'; // Truncate for display
+        }
+
+        // Update Solana address periodically
+        setInterval(() => {
+            const hexEl = document.querySelector('.hex-address');
+            if (hexEl) {
+                hexEl.textContent = generateRandomSolanaAddress();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
